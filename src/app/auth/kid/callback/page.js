@@ -13,7 +13,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
-import { kidClient, session } from "@/lib/kid-auth";
+import { getKidClient, getKidRedirectUri, session } from "@/lib/kid-auth";
 
 function KIDCallbackContent() {
   const router = useRouter();
@@ -28,17 +28,19 @@ function KIDCallbackContent() {
 
     async function handleExchange() {
       try {
-        // extractCallback validates state against sessionStorage and returns code & codeVerifier
-        const { code, codeVerifier } = await kidClient.extractCallback();
+        const client = getKidClient();
+        const { code, codeVerifier } = await client.extractCallback();
 
         if (!code) {
           throw new Error("No authorization code received from KID.");
         }
 
+        const redirectUri = getKidRedirectUri();
+
         const res = await fetch("/api/auth/kid/callback", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, codeVerifier }),
+          body: JSON.stringify({ code, codeVerifier, redirectUri }),
         });
 
         const data = await res.json();

@@ -1,24 +1,19 @@
 /**
  * KID OAuth — Token Exchange API Route
  * POST /api/auth/kid/callback
- *
- * Rules:
- * 1. Client secret stays on the server (@kid-oauth/sdk/server).
- * 2. PKCE (S256): codeVerifier generated in browser is passed here to exchangeCode.
- * 3. Key users by `sub`.
- * 4. Handle merged accounts via tokens.user.merged_from.
- * 15. Import from @kid-oauth/sdk/server, never root.
  */
 
 import { isKIDError } from '@kid-oauth/sdk/server';
 import { NextResponse } from 'next/server';
 import { getKidServer } from '@/lib/kid-server';
+import { connectDB } from '@/lib/db';
+import { User } from '@/models/User';
+import { signToken } from '@/lib/auth';
 
 export async function POST(request) {
-  const kidServer = getKidServer();
   try {
     const body = await request.json();
-    const { code, codeVerifier } = body;
+    const { code, codeVerifier, redirectUri: clientRedirectUri } = body;
 
     if (!code || !codeVerifier) {
       return NextResponse.json(
@@ -27,68 +22,113 @@ export async function POST(request) {
       );
     }
 
+    // Determine the redirect URI matching where the request originated
+    let redirectUri = clientRedirectUri;
+    if (!redirectUri) {
+      const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+      const proto = request.headers.get("x-forwarded-proto") || "https";
+      if (host) {
+        redirectUri = `${proto}://${host}/auth/kid/callback`;
+      } else {
+        redirectUri = process.env.KID_REDIRECT_URI || 'http://localhost:3000/auth/kid/callback';
+      }
+    }
+
+    const kidServer = getKidServer(redirectUri);
+
     // Server-side code exchange with PKCE verifier
     const tokens = await kidServer.exchangeCode({ code, codeVerifier });
 
     // Handle merged accounts (Rule 4):
-    // When accounts merge, survivor claims include merged_from: [{ sub, kid }]
     if (tokens.user?.merged_from?.length) {
       for (const closed of tokens.user.merged_from) {
-        // In a database: update records where user_sub == closed.sub to tokens.user.sub
-        console.log(`[KID] Merging records from closed sub: ${closed.sub} -> survivor sub: ${tokens.user.sub}`);
+        console.log(`[KID] Merged sub: ${closed.sub} -> survivor sub: ${tokens.user.sub}`);
       }
     }
 
-    // Synchronize KID user with Express backend & MongoDB
-    let backendAuth = null;
-    try {
-      const backendBase =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const syncRes = await fetch(`${backendBase}/api/v1/auth/kid-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          accessToken: tokens.access_token,
-          sub: tokens.user?.sub,
-          kid: tokens.user?.kid,
-          name: tokens.user?.name,
-          email: tokens.user?.email,
-          phoneNumber: tokens.user?.phone || tokens.user?.phoneNumber,
-          walletAddress: tokens.user?.wallet?.address,
-          merged_from: tokens.user?.merged_from,
-        }),
+    // Direct database synchronization in unified full-stack application
+    await connectDB();
+    const kidProfile = tokens.user || {};
+    const sub = kidProfile.sub;
+
+    if (!sub) {
+      throw new Error("Missing subject identifier (sub) from KID profile");
+    }
+
+    const finalKid = kidProfile.kid || "";
+    const finalName = kidProfile.name || (finalKid ? `KID User #${finalKid}` : "KID Customer");
+    const finalEmail = (kidProfile.email || `${sub}@kid.user`).toLowerCase();
+    const finalPhone = kidProfile.phone || kidProfile.phoneNumber || "";
+    const finalWallet = kidProfile.wallet?.address || "";
+
+    let user = await User.findOne({ sub });
+    if (!user && finalEmail) {
+      user = await User.findOne({ email: finalEmail });
+      if (user) {
+        user.sub = sub;
+        if (finalKid) user.kid = finalKid;
+        if (finalWallet) user.walletAddress = finalWallet;
+        await user.save();
+      }
+    }
+
+    if (!user) {
+      user = await User.create({
+        sub,
+        kid: finalKid,
+        name: finalName,
+        email: finalEmail,
+        phoneNumber: finalPhone,
+        walletAddress: finalWallet,
+        role: "CUSTOMER",
+        status: "ACTIVE",
       });
-
-      if (syncRes.ok) {
-        backendAuth = await syncRes.json();
-      } else {
-        const errData = await syncRes.json().catch(() => ({}));
-        console.warn(
-          "[KID callback] Express backend sync warning:",
-          syncRes.status,
-          errData
-        );
-      }
-    } catch (syncErr) {
-      console.warn(
-        "[KID callback] Could not connect to Express backend:",
-        syncErr.message
-      );
+    } else {
+      if (finalKid && user.kid !== finalKid) user.kid = finalKid;
+      if (finalWallet && user.walletAddress !== finalWallet) user.walletAddress = finalWallet;
+      if (finalName && user.name !== finalName) user.name = finalName;
+      await user.save();
     }
 
-    // Merge response: prioritize backend JWT & MongoDB user profile, while retaining KID tokens
-    return NextResponse.json({
-      access_token: backendAuth?.accessToken || backendAuth?.token || tokens.access_token,
-      refresh_token: backendAuth?.refreshToken || tokens.refresh_token,
+    const token = signToken({ id: user._id, role: user.role }, { expiresIn: "7d" });
+
+    const formattedUser = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status || "ACTIVE",
+      sub: user.sub || null,
+      kid: user.kid || null,
+      walletAddress: user.walletAddress || null,
+      phoneNumber: user.phoneNumber,
+      driverLicense: user.driverLicense,
+    };
+
+    const res = NextResponse.json({
+      access_token: token,
+      token,
+      refreshToken: token,
+      refresh_token: token,
       kid_access_token: tokens.access_token,
       kid_refresh_token: tokens.refresh_token,
       expires_in: tokens.expires_in,
       scope: tokens.scope,
-      user: backendAuth?.user || tokens.user, // Includes MongoDB _id, sub, kid, role, walletAddress
+      user: formattedUser,
     });
+
+    res.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60,
+      path: "/",
+    });
+
+    return res;
   } catch (err) {
     console.error('[KID callback] token exchange failed:', err);
-    const message = isKIDError(err) ? err.message : 'Failed to exchange authorization code';
+    const message = isKIDError(err) ? err.message : (err.message || 'Failed to exchange authorization code');
     const status = err?.statusCode || (err?.code === 'token_expired' ? 400 : 500);
 
     return NextResponse.json(
