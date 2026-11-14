@@ -102,3 +102,31 @@ a.bg-brand-primary:hover {
   animation: shimmer 1.8s infinite ease-in-out;
 }
 
+/* Mobile Safe Areas & Bottom Sheet Animations */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-up {
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.pb-safe-nav {
+  padding-bottom: max(4.5rem, calc(3.5rem + env(safe-area-inset-bottom)));
+}
+
+.touch-pan-x {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+

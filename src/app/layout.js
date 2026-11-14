@@ -10,6 +10,13 @@ export const metadata = {
     "Photo-first car rentals across Cambodia with instant 15-minute reservation hold, add-on protections, and seamless KHQR Baray payments.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#ffffff",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

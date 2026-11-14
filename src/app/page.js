@@ -11,19 +11,19 @@ export default function HomePage({ searchParams }) {
       {/* Static Navigation Shell — Renders Instantly */}
       <Navbar />
 
-      <main className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 pb-10 max-w-[1920px] mx-auto flex-1">
+      <main className="w-full px-3 sm:px-8 lg:px-12 xl:px-16 pb-10 max-w-[1920px] mx-auto flex-1">
         {/* Static Page Header — Fixed minimum height prevents shift */}
-        <div className="pt-5 pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2 min-h-[72px]">
+        <div className="pt-3 sm:pt-5 pb-2 sm:pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-1 sm:gap-2">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
               Car rentals in Cambodia
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Instant 15-min hold · KHQR &amp; card payment · Free 24h cancellation
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+              Instant 15-min hold · KHQR Baray payment · Free 24h cancellation
             </p>
           </div>
-          <span className="text-xs text-slate-500 font-medium">
-            Phnom Penh · Siem Reap · Sihanoukville
+          <span className="text-[10px] sm:text-xs text-slate-400 font-medium">
+            Phnom Penh · Siem Reap · Sihanoukville · Battambang
           </span>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { LayoutGrid, Map as MapIcon, X, AlertCircle, Car } from "lucide-react";
+import { LayoutGrid, Map as MapIcon, X, AlertCircle, Car, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import CarCard from "@/components/CarCard";
 import CarGridSkeleton from "@/components/CarGridSkeleton";
 import CarMapExplorer from "@/components/CarMapExplorer";
@@ -42,6 +42,7 @@ export default function HomeFleetClient({ initialCars = null, initialQuery = nul
   const [transmissionFilter, setTransmissionFilter] = useState("ALL");
   const [fuelFilter, setFuelFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("POPULAR");
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const lastFetchedQueryRef = useRef(
     initialCars !== null
@@ -211,10 +212,77 @@ export default function HomeFleetClient({ initialCars = null, initialQuery = nul
     (searchFilters.vehicle && searchFilters.vehicle !== "All Types") ||
     (searchFilters.location && searchFilters.location !== "All Locations");
 
+  const activeFilterCount =
+    (maxPrice < 150 ? 1 : 0) +
+    (transmissionFilter !== "ALL" ? 1 : 0) +
+    (fuelFilter !== "ALL" ? 1 : 0) +
+    (sortBy !== "POPULAR" ? 1 : 0);
+
   return (
     <>
-      {/* Filter & View Mode Controls Bar */}
-      <div className="sticky top-16 sm:top-18 z-40 bg-slate-50/95 backdrop-blur-md py-3 flex flex-wrap items-center justify-between gap-3 mb-6 border-y border-slate-200 -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 xl:-mx-16 xl:px-16 min-h-[58px]">
+      {/* Mobile Filter & View Toolbar (< md) */}
+      <div className="flex md:hidden items-center justify-between gap-2 py-2.5 mb-4 border-b border-slate-200">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-xs font-bold text-slate-900 truncate">
+            {filteredCars.length} {filteredCars.length === 1 ? "car" : "cars"}
+          </span>
+          {searchFilters.location && searchFilters.location !== "All Locations" && (
+            <span className="text-[10px] text-slate-500 truncate">in {searchFilters.location}</span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setMobileFilterOpen(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
+              activeFilterCount > 0
+                ? "bg-blue-50 border-blue-200 text-blue-700"
+                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+            }`}
+            aria-label="Open filter options"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          {/* View Toggle */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-full p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-slate-900 text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+              aria-label="Grid view"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("map")}
+              className={`p-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                viewMode === "map"
+                  ? "bg-slate-900 text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+              aria-label="Map view"
+            >
+              <MapIcon className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Filter & View Mode Controls Bar (md+) */}
+      <div className="hidden md:flex sticky top-28 z-30 bg-slate-50/95 backdrop-blur-md py-3 flex-wrap items-center justify-between gap-3 mb-6 border-y border-slate-200 -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12 xl:-mx-16 xl:px-16 min-h-[58px]">
         <div className="flex items-center gap-2 flex-wrap">
           {/* Sort Control */}
           <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-3 py-1.5">
@@ -412,6 +480,154 @@ export default function HomeFleetClient({ initialCars = null, initialQuery = nul
             )}
           </div>
         )}
+
+      {/* Mobile Filter Sheet Modal */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+          <div
+            className="fixed inset-0 bg-slate-950/50 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileFilterOpen(false)}
+          />
+
+          <div className="relative w-full bg-white rounded-t-3xl shadow-2xl flex flex-col max-h-[85vh] z-10 animate-slide-up border-t border-slate-200">
+            {/* Header */}
+            <div className="pt-2.5 pb-2 px-4 flex flex-col items-center border-b border-slate-100 shrink-0">
+              <div className="w-9 h-1 rounded-full bg-slate-300 mb-2" />
+              <div className="w-full flex items-center justify-between">
+                <h3 className="text-sm font-bold text-slate-900">Filters</h3>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer"
+                  aria-label="Close filters"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Filter Content */}
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+              {/* Sort By */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Sort By
+                </label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    { id: "POPULAR", label: "Popular" },
+                    { id: "PRICE_ASC", label: "Price: Low to high" },
+                    { id: "PRICE_DESC", label: "Price: High to low" },
+                    { id: "RATING", label: "Top rated" },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setSortBy(s.id)}
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold text-left transition-colors cursor-pointer ${
+                        sortBy === s.id
+                          ? "bg-slate-900 text-white"
+                          : "bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Max Daily Rate
+                  </label>
+                  <span className="text-sm font-bold text-blue-600">${maxPrice}/day</span>
+                </div>
+                <input
+                  type="range"
+                  min="20"
+                  max="250"
+                  step="5"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full accent-blue-600 cursor-pointer h-2 bg-slate-100 rounded-lg"
+                  aria-label="Max price per day"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>$20/d</span>
+                  <span>$150/d</span>
+                  <span>$250/d+</span>
+                </div>
+              </div>
+
+              {/* Transmission */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Transmission
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {["ALL", "Automatic", "Manual"].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTransmissionFilter(t)}
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                        transmissionFilter === t
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      {t === "ALL" ? "All" : t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fuel Filter */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Fuel Type
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {["ALL", "Petrol", "Diesel", "Hybrid", "Electric"].map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => setFuelFilter(f)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                        fuelFilter === f
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      {f === "ALL" ? "All Fuel" : f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer with Safe-Area */}
+            <div className="p-3 border-t border-slate-200 bg-white flex items-center gap-2.5 shrink-0 pb-safe">
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer shrink-0"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen(false)}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer text-center"
+              >
+                Show {filteredCars.length} {filteredCars.length === 1 ? "Car" : "Cars"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

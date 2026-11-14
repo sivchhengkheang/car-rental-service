@@ -12,18 +12,18 @@ export default function SavedCarsPage() {
     <>
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-8 py-4 sm:py-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Saved Cars</h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Saved Cars</h1>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
               {wishlist.length} {wishlist.length === 1 ? "vehicle" : "vehicles"} saved
             </p>
           </div>
 
           <Link
             href="/compare"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs no-underline shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs no-underline shrink-0 self-start sm:self-auto"
           >
             <Scale className="w-3.5 h-3.5" />
             <span>Compare</span>
@@ -31,7 +31,7 @@ export default function SavedCarsPage() {
         </div>
 
         {wishlist.length === 0 ? (
-          <div className="p-12 text-center bg-white border border-slate-200 rounded-2xl max-w-md mx-auto my-10">
+          <div className="p-8 sm:p-12 text-center bg-white border border-slate-200 rounded-2xl max-w-md mx-auto my-6 sm:my-10">
             <Heart className="w-8 h-8 text-slate-300 mx-auto mb-3" />
             <h3 className="text-sm font-bold text-slate-900 mb-1">No saved cars</h3>
             <p className="text-xs text-slate-500 mb-5">
@@ -45,7 +45,7 @@ export default function SavedCarsPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5">
             {wishlist.map((car, idx) => (
               <CarCard key={car._id || car.id || idx} car={car} index={idx} />
             ))}

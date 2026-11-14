@@ -886,7 +886,7 @@ function CheckoutContent() {
     <>
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
         <Breadcrumb
           className="mb-5"
           items={[
@@ -991,12 +991,12 @@ function CheckoutContent() {
           </p>
         </div>
 
-        {/* 2-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
-          {/* Left: Driver Details Form */}
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start">
+          {/* Driver Details Form (order-last on mobile, order-first on desktop) */}
           <div
             id="driver-info"
-            className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-6"
+            className="order-last lg:order-first bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-5 sm:space-y-6"
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
@@ -1248,8 +1248,8 @@ function CheckoutContent() {
             </div>
           </div>
 
-          {/* Right: Sticky Summary */}
-          <div className="sticky top-24 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-5">
+          {/* Right: Sticky Summary (order-first on mobile, order-last on desktop) */}
+          <div className="order-first lg:order-last sticky lg:top-24 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 sm:space-y-5">
             <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
               Summary
             </h3>

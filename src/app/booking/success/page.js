@@ -168,7 +168,7 @@ END:VCALENDAR`;
     <>
       <Navbar />
 
-      <main className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-6">
+      <main className="max-w-2xl mx-auto px-3 sm:px-6 py-6 sm:py-12 space-y-5 sm:space-y-6">
         {/* Confirmation Header */}
         <div className="text-center">
           <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-3">

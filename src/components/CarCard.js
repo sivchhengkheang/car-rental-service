@@ -101,36 +101,45 @@ export default function CarCard({ car, index = 0 }) {
 
         {/* Carousel Prev/Next */}
         {photos.length > 1 && (
-          <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <div className="absolute inset-y-0 inset-x-1.5 sm:inset-x-2 flex items-center justify-between sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pointer-events-none">
             <button
               type="button"
               onClick={handlePrevPhoto}
-              className="w-6 h-6 rounded-full bg-white/90 hover:bg-white text-slate-800 flex items-center justify-center shadow-sm pointer-events-auto cursor-pointer"
+              className="w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-white/95 text-slate-800 flex items-center justify-center shadow-md pointer-events-auto cursor-pointer"
               aria-label="Previous photo"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronLeft className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
             </button>
             <button
               type="button"
               onClick={handleNextPhoto}
-              className="w-6 h-6 rounded-full bg-white/90 hover:bg-white text-slate-800 flex items-center justify-center shadow-sm pointer-events-auto cursor-pointer"
+              className="w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-white/95 text-slate-800 flex items-center justify-center shadow-md pointer-events-auto cursor-pointer"
               aria-label="Next photo"
             >
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
         )}
 
-        {/* Photo Counter */}
+        {/* Carousel Dots & Counter */}
         {photos.length > 1 && (
-          <span className="absolute bottom-2 right-2 z-10 text-[10px] font-medium bg-slate-900/60 text-white px-1.5 py-0.5 rounded">
-            {photoIndex + 1}/{photos.length}
-          </span>
+          <div className="absolute bottom-2 inset-x-0 flex items-center justify-center gap-1 z-10 pointer-events-none">
+            {photos.slice(0, 5).map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all shadow-xs ${
+                  i === photoIndex % photos.length
+                    ? "w-3.5 bg-white"
+                    : "w-1.5 bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
         )}
       </div>
 
       {/* Card Body */}
-      <div className="p-3.5 flex flex-col flex-1 justify-between gap-2.5">
+      <div className="p-3 sm:p-3.5 flex flex-col flex-1 justify-between gap-2">
         <Link href={bookingUrl} className="no-underline text-inherit block">
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors truncate">

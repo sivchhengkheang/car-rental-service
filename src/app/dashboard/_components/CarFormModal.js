@@ -136,13 +136,13 @@ function CarFormModalInner({ onClose, car, token, onSaved, showToast }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/50 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-2xl bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden my-8"
+        className="w-full max-w-2xl bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
       >
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
           <h2 className="text-sm font-bold text-slate-900">
             {isEditing ? "Edit vehicle" : "Add vehicle"}
           </h2>
@@ -156,7 +156,7 @@ function CarFormModalInner({ onClose, car, token, onSaved, showToast }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-3.5 sm:space-y-4 overflow-y-auto flex-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">

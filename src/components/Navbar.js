@@ -55,6 +55,8 @@ export default function Navbar({ onSearchSubmit, initialSearch = {} }) {
 
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState(null); // 'where', 'dates', 'vehicle'
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileSearchStep, setMobileSearchStep] = useState("where"); // 'where' | 'dates' | 'vehicle'
 
   const [location, setLocation] = useState(initialSearch.location || searchFilters?.location || "All Locations");
   const [startDate, setStartDate] = useState(
@@ -359,15 +361,37 @@ export default function Navbar({ onSearchSubmit, initialSearch = {} }) {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
-      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 h-16 sm:h-18 flex items-center justify-between gap-4 max-w-[1920px] mx-auto" ref={navRef}>
+      <div className="w-full px-3 sm:px-8 lg:px-12 xl:px-16 h-14 sm:h-18 flex items-center justify-between gap-2 sm:gap-4 max-w-[1920px] mx-auto" ref={navRef}>
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-1.5 text-lg font-extrabold text-slate-900 tracking-tight no-underline shrink-0">
-          <img src="/blue-logo.png" alt="DriveKH" width={40} height={40} className="object-contain" />
+        <Link href="/" className="flex items-center gap-1 sm:gap-1.5 text-base sm:text-lg font-extrabold text-slate-900 tracking-tight no-underline shrink-0">
+          <img src="/blue-logo.png" alt="DriveKH" width={32} height={32} className="w-7 h-7 sm:w-9 sm:h-9 object-contain" />
           <span>Drive<span className="text-blue-600">KH</span></span>
         </Link>
 
-        {/* Compact Search Pill */}
-        <div className="flex-1 flex justify-center relative max-w-xl">
+        {/* Mobile Search Button (Visible on < sm) */}
+        <div className="flex sm:hidden flex-1 justify-center max-w-[220px]">
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen(true)}
+            className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 w-full shadow-2xs transition-colors cursor-pointer text-left"
+            aria-label="Open search filters"
+          >
+            <Search className="w-3.5 h-3.5 text-blue-600 shrink-0" strokeWidth={2.5} />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-[11px] font-bold text-slate-800 truncate">
+                {location !== "All Locations" ? location : "Anywhere"}
+              </span>
+              <span className="text-[9px] text-slate-500 font-medium truncate">
+                {startDate && endDate
+                  ? `${startDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} – ${endDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
+                  : "Dates · Vehicle"}
+              </span>
+            </div>
+          </button>
+        </div>
+
+        {/* Desktop Search Pill (Hidden on mobile, visible sm+) */}
+        <div className="hidden sm:flex flex-1 justify-center relative max-w-xl">
           <div className="flex items-center bg-white border border-slate-200 rounded-full shadow-xs hover:shadow-sm transition-all w-full pl-5 pr-1.5 py-1.5">
             <button
               type="button"
@@ -395,11 +419,11 @@ export default function Navbar({ onSearchSubmit, initialSearch = {} }) {
               </span>
             </button>
 
-            <div className="w-px h-6 bg-slate-200 mx-2.5 hidden sm:block" />
+            <div className="w-px h-6 bg-slate-200 mx-2.5 hidden md:block" />
 
             <button
               type="button"
-              className="hidden sm:flex flex-col flex-1 text-left cursor-pointer px-1"
+              className="hidden md:flex flex-col flex-1 text-left cursor-pointer px-1"
               onClick={() => toggleTab("vehicle")}
             >
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Type</span>
@@ -719,6 +743,186 @@ export default function Navbar({ onSearchSubmit, initialSearch = {} }) {
           )}
         </div>
       </div>
+
+      {/* Mobile Search Bottom Sheet Modal */}
+      {mobileSearchOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-950/50 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileSearchOpen(false)}
+          />
+
+          {/* Sheet Container */}
+          <div className="relative w-full bg-white rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh] z-10 animate-slide-up border-t border-slate-200">
+            {/* Top Handle & Header */}
+            <div className="pt-2.5 pb-2 px-4 flex flex-col items-center border-b border-slate-100 shrink-0">
+              <div className="w-9 h-1 rounded-full bg-slate-300 mb-2" />
+              <div className="w-full flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-900">Search Vehicles</h2>
+                  <p className="text-[11px] text-slate-500">Find the perfect car for your trip</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileSearchOpen(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer"
+                  aria-label="Close search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Sheet Content */}
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+              {/* Section 1: Where */}
+              <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-blue-600" />
+                    <span>Location</span>
+                  </span>
+                  <span className="text-xs font-bold text-blue-700">{location}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {CITIES.map((city) => (
+                    <button
+                      key={city}
+                      type="button"
+                      onClick={() => handleSelectLocation(city)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                        location === city
+                          ? "bg-blue-600 text-white shadow-2xs"
+                          : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      {city}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 2: Dates */}
+              <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-blue-600" />
+                    <span>Trip Dates</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {(startDate || endDate) && (
+                      <button
+                        type="button"
+                        onClick={handleClearDates}
+                        className="text-[11px] font-semibold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <span className="text-xs font-bold text-blue-700">
+                      {startDate && endDate
+                        ? `${getRentalDaysCount()} days`
+                        : startDate
+                        ? "Pick return"
+                        : "Select"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-slate-200/80 p-2.5">
+                  <div className="flex items-center justify-between mb-2">
+                    <button
+                      type="button"
+                      onClick={prevMonth}
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs font-bold text-slate-800">
+                      {MONTH_NAMES[month1.month]} {month1.year}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={nextMonth}
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <CalendarMonth
+                    days={month1.days}
+                    year={month1.year}
+                    month={month1.month}
+                    startDate={startDate}
+                    endDate={endDate}
+                    today={today}
+                    onDayClick={handleDayClick}
+                  />
+                </div>
+              </div>
+
+              {/* Section 3: Vehicle Type */}
+              <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Vehicle Type
+                  </span>
+                  <span className="text-xs font-bold text-blue-700">{vehicle}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {availableVehicles.map((type) => {
+                    const meta = VEHICLE_META[type] || { label: type };
+                    const isSelected = vehicle === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => handleSelectVehicle(type)}
+                        className={`text-left px-2.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-600 text-white shadow-2xs"
+                            : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        {meta.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Sticky Bottom Actions */}
+            <div className="p-3 border-t border-slate-200 bg-white flex items-center gap-2.5 shrink-0 pb-safe">
+              <button
+                type="button"
+                onClick={() => {
+                  setLocation("All Locations");
+                  setStartDate(null);
+                  setEndDate(null);
+                  setVehicle("All Types");
+                }}
+                className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer shrink-0"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSearchOpen(false);
+                  handleSearch();
+                }}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <Search className="w-3.5 h-3.5" strokeWidth={2.5} />
+                <span>Show Vehicles</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

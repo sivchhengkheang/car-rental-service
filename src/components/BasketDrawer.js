@@ -100,10 +100,10 @@ export default function BasketDrawer() {
         onClick={closeDrawer}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-slate-200">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-6 w-full sm:w-auto">
+        <div className="w-full sm:w-[420px] bg-white shadow-2xl flex flex-col border-l border-slate-200 h-full">
           {/* Header */}
-          <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
               <ShoppingBag className="w-4 h-4 text-slate-700" />
               <h2 className="text-sm font-bold text-slate-900">
@@ -162,7 +162,7 @@ export default function BasketDrawer() {
           )}
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-4 pb-safe">
             {!hasContent ? (
               <div className="text-center py-20 px-4">
                 <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-3" />

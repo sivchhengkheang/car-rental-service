@@ -160,16 +160,16 @@ function MyBookingsContent() {
     <>
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 py-8 sm:py-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <main className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Trips</h1>
-            <p className="text-xs text-slate-500 mt-0.5">Upcoming and past reservations</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">My Trips</h1>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Upcoming and past reservations</p>
           </div>
 
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 hover:bg-blue-600 text-white font-semibold text-xs transition-colors no-underline shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-slate-900 hover:bg-blue-600 text-white font-semibold text-xs transition-colors no-underline shrink-0 self-start sm:self-auto"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Book a car</span>
@@ -177,7 +177,7 @@ function MyBookingsContent() {
         </div>
 
         {/* Status Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-3 mb-6 border-b border-slate-200">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 sm:pb-3 mb-5 sm:mb-6 border-b border-slate-200 touch-pan-x">
           {STATUS_FILTERS.map((tab) => (
             <button
               key={tab.id}

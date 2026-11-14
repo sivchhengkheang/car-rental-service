@@ -1140,11 +1140,12 @@ function BookingContent() {
           </div>
 
           {/* Photo Gallery Grid */}
-          <div className="rounded-2xl overflow-hidden relative group h-[300px] md:h-[420px]">
-            <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] grid-rows-2 gap-2 h-full">
+          <div className="rounded-2xl overflow-hidden relative group h-[260px] sm:h-[340px] md:h-[420px]">
+            {/* Desktop 5-photo grid */}
+            <div className="hidden md:grid grid-cols-[2fr_1fr_1fr] grid-rows-2 gap-2 h-full">
               <div className="relative h-full row-span-2 cursor-pointer overflow-hidden">
                 <img
-                  src={gallery[0] || SAMPLE_GALLERY_PHOTOS[0]}
+                  src={gallery[selectedPhotoIndex] || gallery[0] || SAMPLE_GALLERY_PHOTOS[0]}
                   alt={`${brand} ${model}`}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"
                   onError={(e) => { e.target.src = SAMPLE_GALLERY_PHOTOS[0]; }}
@@ -1155,7 +1156,7 @@ function BookingContent() {
               {[1, 2, 3, 4].map((idx) => {
                 const photo = gallery[idx] || SAMPLE_GALLERY_PHOTOS[idx % SAMPLE_GALLERY_PHOTOS.length];
                 return (
-                  <div key={idx} className="hidden md:block relative h-full w-full cursor-pointer overflow-hidden">
+                  <div key={idx} className="relative h-full w-full cursor-pointer overflow-hidden">
                     <img
                       src={photo}
                       alt={`${brand} ${model} ${idx + 1}`}
@@ -1168,13 +1169,57 @@ function BookingContent() {
               })}
             </div>
 
+            {/* Mobile Touch Carousel View */}
+            <div className="md:hidden relative w-full h-full">
+              <img
+                src={gallery[selectedPhotoIndex] || gallery[0] || SAMPLE_GALLERY_PHOTOS[0]}
+                alt={`${brand} ${model}`}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.src = SAMPLE_GALLERY_PHOTOS[0]; }}
+              />
+
+              {gallery.length > 1 && (
+                <>
+                  <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between pointer-events-none">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPhotoIndex((prev) => (prev - 1 + gallery.length) % gallery.length)}
+                      className="w-8 h-8 rounded-full bg-white/90 text-slate-800 flex items-center justify-center shadow-md pointer-events-auto cursor-pointer"
+                      aria-label="Previous photo"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPhotoIndex((prev) => (prev + 1) % gallery.length)}
+                      className="w-8 h-8 rounded-full bg-white/90 text-slate-800 flex items-center justify-center shadow-md pointer-events-auto cursor-pointer"
+                      aria-label="Next photo"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-1 z-10 pointer-events-none">
+                    {gallery.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all shadow-xs ${
+                          i === selectedPhotoIndex ? "w-4 bg-white" : "w-1.5 bg-white/60"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
             <button
               type="button"
-              className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-900 shadow-sm border border-slate-200 hover:bg-white flex items-center gap-1.5 cursor-pointer"
+              className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-900 shadow-sm border border-slate-200 hover:bg-white flex items-center gap-1.5 cursor-pointer z-10"
               onClick={() => setSelectedPhotoIndex((prev) => (prev + 1) % gallery.length)}
             >
               <Camera className="w-3.5 h-3.5" />
-              <span>{gallery.length} photos</span>
+              <span>{selectedPhotoIndex + 1}/{gallery.length}</span>
             </button>
           </div>
         </div>
@@ -1742,7 +1787,7 @@ function BookingContent() {
 
         {/* Mobile Sticky CTA Bar */}
         {!loading && car && (
-          <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between gap-3">
+          <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 pt-2.5 pb-safe flex items-center justify-between gap-3 shadow-lg">
             <div>
               <div className="text-[11px] text-slate-500">
                 {totalDays > 0 ? `${totalDays} ${totalDays === 1 ? "day" : "days"}` : "Daily rate"}

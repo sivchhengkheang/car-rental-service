@@ -198,17 +198,17 @@ export default function CarMapExplorer({ cars = [] }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6 items-start">
-      {/* Left: Scrollable Cars Grid */}
-      <div className="space-y-4 pr-1">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
-          <h2 className="text-base font-bold text-slate-900">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6 items-start">
+      {/* Cars Grid: order-last on mobile (below map), order-first on desktop (left column) */}
+      <div className="order-last lg:order-first space-y-4 pr-0 sm:pr-1">
+        <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200">
+          <h2 className="text-sm sm:text-base font-bold text-slate-900">
             {cars.length} {cars.length === 1 ? "vehicle" : "vehicles"} available
           </h2>
-          <span className="text-xs text-slate-500">Hover a car to locate its city center</span>
+          <span className="text-[11px] sm:text-xs text-slate-500">Tap or hover a car to pinpoint on map</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           {mappedCars.map((car, idx) => {
             const carId = car._id || car.id;
             const isActive =
@@ -221,7 +221,7 @@ export default function CarMapExplorer({ cars = [] }) {
                 onMouseLeave={() => setHoveredCarId(null)}
                 onClick={() => handleSelectCar(car)}
                 className={`transition-all duration-200 rounded-2xl ${
-                  isActive ? "ring-2 ring-blue-600 shadow-lg" : ""
+                  isActive ? "ring-2 ring-blue-600 shadow-md" : ""
                 }`}
               >
                 <CarCard car={car} index={idx} />
@@ -231,8 +231,8 @@ export default function CarMapExplorer({ cars = [] }) {
         </div>
       </div>
 
-      {/* Right: Sticky Google Maps Explorer */}
-      <div className="sticky top-28 h-[calc(100vh-140px)] min-h-[560px] rounded-2xl overflow-hidden bg-slate-100 shadow-sm flex flex-col relative border border-slate-200">
+      {/* Map Explorer: order-first on mobile (top of screen), sticky order-last on desktop */}
+      <div className="order-first lg:order-last sticky top-14 sm:top-20 lg:top-28 z-20 h-[48vh] sm:h-[420px] lg:h-[calc(100vh-140px)] min-h-[280px] rounded-2xl overflow-hidden bg-slate-100 shadow-sm flex flex-col relative border border-slate-200">
         {/* Google Maps Iframe */}
         <iframe
           key={mapEmbedUrl}
