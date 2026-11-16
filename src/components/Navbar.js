@@ -368,8 +368,8 @@ export default function Navbar({ onSearchSubmit, initialSearch = {} }) {
           <span>Drive<span className="text-blue-600">KH</span></span>
         </Link>
 
-        {/* Mobile Search Button (Visible on < sm) */}
-        <div className="flex sm:hidden flex-1 justify-center max-w-[220px]">
+        {/* Mobile Search Button (Hidden on mobile per user request) */}
+        <div className="hidden">
           <button
             type="button"
             onClick={() => setMobileSearchOpen(true)}
@@ -647,10 +647,17 @@ export default function Navbar({ onSearchSubmit, initialSearch = {} }) {
               <button
                 type="button"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="w-9 h-9 rounded-full bg-slate-900 hover:bg-blue-600 text-white flex items-center justify-center text-xs font-bold transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-slate-900 hover:bg-blue-600 text-white flex items-center justify-center text-xs font-bold transition-colors cursor-pointer overflow-hidden border border-slate-200"
                 aria-label="Account menu"
               >
-                {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                {user.picture ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.picture} alt={user.name || "User"} className="w-full h-full object-cover" />
+                ) : user.name ? (
+                  user.name.charAt(0).toUpperCase()
+                ) : (
+                  "U"
+                )}
               </button>
 
               {dropdownOpen && (

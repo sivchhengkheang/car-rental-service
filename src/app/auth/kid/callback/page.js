@@ -51,8 +51,19 @@ function KIDCallbackContent() {
         // Persist session (user keyed by sub)
         session.save(data);
         setStatus("success");
-        router.replace("/");
-        // router.replace("/auth/kid/profile");
+
+        // Directly navigate back to current link after successful login
+        const returnUrl =
+          (typeof window !== "undefined" && sessionStorage.getItem("kid_return_url")) ||
+          (typeof window !== "undefined" && window.location?.origin ? window.location.origin : "/") ||
+          "https://car-rental-service-eta.vercel.app/";
+
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("kid_return_url");
+          window.location.replace(returnUrl);
+        } else {
+          router.replace("/");
+        }
       } catch (err) {
         console.error("Callback error:", err);
         setErrorMessage(err.message || "An unexpected error occurred.");
